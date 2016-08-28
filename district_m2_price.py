@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-#added from git repo
-#added from local repo
-#another comment from local
-
+# -- coding: utf-8 --
+#import sys
+#sys.stdout.buffer.write(chr(9986).encode('utf8'))
 import matplotlib.pyplot as plt
-import httplib
+import http.client
+from urllib.parse import urlencode
 import time
 from hashlib import sha1
 import random
@@ -18,23 +17,23 @@ import pandas as pd
 callerId = "YOUR_CALLER_ID"
 timestamp = str(int(time.time()))
 unique = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
-hashstr = sha1(callerId+timestamp+"YOUR_PRIVATE_KEY"+unique).hexdigest()
-
+print(callerId,timestamp,"wKalNs1fMuymxyXtN9wPwEypXpwtVWA3JT4uepf8",unique)
+hashstr = sha1((callerId+timestamp+"YOUR_PRIVATE_KEY"+unique).encode('utf-8')).hexdigest()
 kvmPriceMonth=[]
 kvmSizeMonth=[]
 dateArray = [
-             '20150101',
-             '20150201',
-             '20150301',
-             '20150401',
-             '20150501',
-             '20150601',
-             '20150701',
-             '20150801',
-             '20150901',
-             '20151001',
-             '20151101',
-             '20151201',
+             #'20150101',
+             #'20150201',
+             #'20150301',
+             #'20150401',
+             #'20150501',
+             #'20150601',
+             #'20150701',
+             #'20150801',
+             #'20150901',
+             #'20151001',
+             #'20151101',
+             #'20151201',
              '20160101',
              '20160201',
              '20160301',
@@ -43,27 +42,28 @@ dateArray = [
              '20160601',
              '20160701',
              '20160801',
+             '20160901',
              ]
              
+area = 'gr%C3%B6ndal'
+print(area)      
 for i in range(len(dateArray)-1):
-    print dateArray[i]
-    url = ("/sold?q=gröndal&"
+    print(dateArray[i])
+    url = ("/sold?q="+area+"&"
             "minSoldDate="+dateArray[i]+"&"
             "maxSoldDate="+dateArray[i+1]+"&"
-            #"minLivingArea=40&"
-            #"maxLivingArea=70&"
-            "limit=10000&"+
+            "minLivingArea=40&"
+            "maxLivingArea=70&"
+            "limit=10000&"
             "callerId="+callerId+"&time="+timestamp+"&unique="+unique+"&hash="+hashstr)
-   
-   
-    connection = httplib.HTTPConnection("api.booli.se")
+    connection = http.client.HTTPConnection("api.booli.se")
     connection.request("GET", url)
     response = connection.getresponse()
-    data = response.read()
+    data = response.read().decode('utf8')
     connection.close()
     time.sleep(1)
     if response.status != 200:
-        print "fail"
+        print("fail")
         kvmPriceMonth.append(0)
         kvmSizeMonth.append(0)
     else:
@@ -71,7 +71,7 @@ for i in range(len(dateArray)-1):
         with open('data.txt', 'w') as outfile:
             json.dump(data, outfile)
         count = result['totalCount']
-        print "Nr: "+str(count)
+        print("Nr: ",str(count))
         
         kvmPrice=[]
         kvmSize=[]
@@ -80,7 +80,7 @@ for i in range(len(dateArray)-1):
                 kvmPrice.append(result['sold'][i]['soldPrice']/result['sold'][i]['livingArea'])
                 kvmSize.append(result['sold'][i]['livingArea'])
             except:
-                print "info missing"
+                print("info missing")
         nrObjects = count
         kvmSizeMonth.append(np.mean(kvmSize))
         kvmPriceMonth.append(np.mean(kvmPrice))
@@ -88,30 +88,4 @@ for i in range(len(dateArray)-1):
 x = range(len(kvmSizeMonth))
 df = pd.DataFrame(kvmPriceMonth,index=pd.to_datetime(dateArray[0:-1]),columns=['kvm_price'])
 
-
-
-
-res = json.loads(data)
-size = []
-price = []
-for i in range(res['count']):
-    try:
-        price.append(res['sold'][i]['soldPrice'])
-        size.append(res['sold'][i]['livingArea'])
-        #date.append(res['sold'][i]['livingArea'])
-    except:
-        print i
-    
-tag=np.ones(len(price))
-sb.plt.rcParams['figure.figsize']=(16,10) 
-data = {'price': pd.Series(price),'size': pd.Series(size),'tag':pd.Series(tag)}
-#data2 = {'price':[3800000],'size':[52],'tag':[2]}
-df = pd.DataFrame(data)
-#df2 = pd.DataFrame(data2)
-#df = df.append(df2)
-df.plot(kind='scatter',x='size',y='price',title='Grondal 20150101-20160416')
-#,xticks=np.arange(0,200,10),yticks=np.arange(0,12000000,400000)
-
-#df[df.tag!=2].plot(kind='scatter',x='size',y='price',title='Grondal 20150101-20160416',xticks=np.arange(0,200,10),yticks=np.arange(0,12000000,400000))
-
-
+df.plot()
