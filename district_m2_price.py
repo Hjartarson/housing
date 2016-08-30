@@ -19,8 +19,8 @@ import pandas as pd
 district =      'gr%C3%B6ndal'
 startDate =     '20160101'
 endDate =       '20160801'
-callerId =      'hjartarson'
-privateKey =    'wKalNs1fMuymxyXtN9wPwEypXpwtVWA3JT4uepf8'
+callerId =      'YOUR_CALLER_ID'
+privateKey =    'YOUR_PRIVATE_KEY'
 minLivingArea = 40
 maxLivingArea = 70
 
