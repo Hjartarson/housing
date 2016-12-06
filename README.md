@@ -1,2 +1,2 @@
 # BooliAPI
-Average square meter price for selected date, district, living area etc. 
+Booli api connection and collection of housing market data. Merging, munging and visualize the data. 
